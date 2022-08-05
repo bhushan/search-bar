@@ -18,6 +18,8 @@
         align-items: center;
         min-height: 100vh;
         background: #3e7272;
+        flex-direction: column;
+        gap: 50px;
       }
 
       .search {
@@ -119,21 +121,30 @@
         background: #999;
         transform: rotate(315deg);
       }
+      .pill {
+        background: #fff;
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0 0 0 5px #2e5555;
+        margin-right: 15px;
+      }
     </style>
   </head>
   <body>
     <div class="search">
       <span class="icon"></span>
       <span class="input">
-        <input id="input" type="text" name="input" placeholder="Search..." />
+        <input id="hashtag" type="text" name="input" placeholder="Search..." />
       </span>
       <span class="clear"></span>
     </div>
+    <div id="suggestions"></div>
 
     <script>
+      const inputElement = document.getElementById("hashtag");
       const searchBoxElement = document.querySelector(".search");
+
       const iconElement = document.querySelector(".icon");
-      const inputElement = document.querySelector("#input");
       const clearElement = document.querySelector(".clear");
 
       iconElement.addEventListener("click", function (event) {
@@ -142,6 +153,69 @@
 
       clearElement.addEventListener("click", function (event) {
         inputElement.value = "";
+        suggestionsElement.innerHTML = "";
+        hashtags.forEach((hashtag) => {
+          const span = document.createElement("span");
+          span.classList.add("pill");
+          span.innerHTML = "#" + hashtag;
+          suggestionsElement.append(span);
+        });
+      });
+
+      const hashtags = [
+        "twitch",
+        "twitter",
+        "javascript",
+        "html",
+        "css",
+        "web",
+      ];
+
+      const hashtagInputElement = document.getElementById("hashtag");
+      const suggestionsElement = document.getElementById("suggestions");
+
+      hashtagInputElement.addEventListener("keyup", function (event) {
+        const query = event.target.value;
+        suggestionsElement.innerHTML = "";
+
+        if (query === "") {
+          hashtags.forEach((hashtag) => {
+            const span = document.createElement("span");
+            span.classList.add("pill");
+            span.innerHTML = "#" + hashtag;
+            suggestionsElement.append(span);
+          });
+          return;
+        }
+
+        const result = [];
+
+        for (let index = 0; index < hashtags.length; index++) {
+          let hashtag = hashtags[index];
+          let tempHashtag = hashtags[index];
+          const queryArray = query.split("");
+          let isRelevant = true;
+          for (let j = 0; j < queryArray.length; j++) {
+            const char = queryArray[j];
+            const isExists = tempHashtag.indexOf(char);
+            if (isExists === -1) {
+              isRelevant = false;
+              break;
+            }
+
+            tempHashtag =
+              tempHashtag.slice(0, isExists) + tempHashtag.slice(isExists + 1);
+          }
+
+          if (isRelevant) {
+            const span = document.createElement("span");
+            span.classList.add("pill");
+            span.innerHTML = "#" + hashtag;
+            suggestionsElement.append(span);
+
+            result.push(hashtag);
+          }
+        }
       });
     </script>
   </body>
